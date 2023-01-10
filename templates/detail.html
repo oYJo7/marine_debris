@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>RESTful API</title>
+
+<script>
+    checked=[];
+    window.onload = function(){
+        //문자열: locationListString, LabelListString(배열 아님)
+        var locationListString = document.getElementById('LocationList').value; //좌표값 가져오기
+        
+        //1차원 배열: aaaa[좌상단x, 좌상단y, 우하단x, 우하단y, ...]
+        var aaaa = locationListString.split(',');
+        
+        //2차원 배열 만들기: https://eunsood.tistory.com/entry/javascript-%EC%97%90%EC%84%9C-2%EC%B0%A8%EC%9B%90-%EB%B0%B0%EC%97%B4%EC%97%90-%EB%8D%B0%EC%9D%B4%ED%84%B0-%EB%84%A3%EC%9D%84-%EB%95%8C-%EC%84%A0%EC%96%B8-%EB%AC%B8%EC%A0%9C
+        const locationList=[];
+        var c = 0;
+        for (var i=0; i<(aaaa.length)/5; i++){
+            locationList[i]=new Array();
+            var d = aaaa[c].split("'");
+            locationList[i][0] = d[1];
+			c+=1;
+            for (var j=1; j<5; j++){
+                if (j==4){
+                    var e = aaaa[c].split(')');
+                    aaaa[c] = e[0];
+                    locationList[i][j]=aaaa[c];
+                    c+=1;
+                } else {
+                    locationList[i][j]=aaaa[c];
+                    c+=1;
+                };
+            };
+        };
+
+		if ({{ImageHeight}} == 600 && {{ImageWidth}} == 900){
+			//사진이 25% 작으니 좌표도 25% 작게(1200*900만)
+			for (var i=0; i<locationList.length; i++){
+				for (var j=1; j<5; j++){
+					//console.log("locationList["+i+"]["+j+"]:"+locationList[i][j]);
+					locationList[i][j]=(parseInt(locationList[i][j])/4)*3;
+				};
+				//console.log("locationList:"+locationList);
+			};
+		} else {
+			//해상도 1200*900 아닌 사진들 처리
+			for (var i=0; i<locationList.length; i++){
+				for (var j=1; j<5; j++){
+					locationList[i][j]=parseInt(locationList[i][j])/4;
+				};
+			}
+		}
+
+        LabelList = []
+        for (var i=0; i<locationList.length; i++){
+            LabelList.push(locationList[i][0]);
+        };
+        console.log('LabelList: '+LabelList);
+
+        for (var i=0; i<LabelList.length; i++){
+            checked.push(i);
+        };
+
+        const canvas = document.getElementById('canvas');
+        const LeftUpper = canvas.getContext("2d");
+        const RightBottom = canvas.getContext("2d");
+        const Rect = canvas.getContext("2d");
+
+        if(canvas.getContext){
+            for (var i=0; i<locationList.length; i++){
+				let LabelColor = "";
+				if(locationList[i][0]=="Metal"){
+					LabelColor ="#FF0000";
+				}else if(locationList[i][0]=="PET_Bottle"){
+					LabelColor ="#800000";
+				}else if(locationList[i][0]=="Styrofoam_Piece"){
+					LabelColor ="#FF4500";
+				}else if(locationList[i][0]=="Styrofoam_Box"){
+					LabelColor ="#FFFF00";
+				}else if(locationList[i][0]=="Styrofoam_Buoy"){
+					LabelColor ="#ADFF2F";
+				}else if(locationList[i][0]=="Rope"){
+					LabelColor ="#006400";
+				}else if(locationList[i][0]=="Plastic_Buoy"){
+					LabelColor ="#0000FF";
+				}else if(locationList[i][0]=="Net"){
+					LabelColor ="#00FFFF";
+				}else if(locationList[i][0]=="Glass"){
+					LabelColor ="#7B68EE";
+				}else if(locationList[i][0]=="Plastic_ETC"){
+					LabelColor ="#FF1493";
+				}else if(locationList[i][0]=="Plastic_Buoy_China"){
+					LabelColor ="#C0C0C0";
+				}
+
+				Rect.strokeStyle = LabelColor;
+       			Rect.lineWidth = 2;	
+
+                //얘 뭐지
+                LeftUpper.beginPath()
+                
+                LeftUpper.arc(locationList[i][1], locationList[i][2], 4, 0, Math.PI*3);
+                RightBottom.arc(locationList[i][3], locationList[i][4], 4, 0, Math.PI*3);
+
+                Rect.strokeRect(locationList[i][1], locationList[i][2], (locationList[i][3])-(locationList[i][1]), (locationList[i][4])-(locationList[i][2]));
+
+                LeftUpper.fillStyle = LabelColor;
+                RightBottom.fillStyle = LabelColor;
+
+                LeftUpper.fill();
+                RightBottom.fill();
+            }
+        }
+
+
+        const labelcanvas = document.getElementById('labelcanvas');
+        const LabelRect = labelcanvas.getContext("2d");
+		let y = 20;
+
+        if(labelcanvas.getContext){
+            LabelRect.lineWidth = 2;
+            for (var i=0; i<LabelList.length; i++){
+                if(LabelList[i]=="Metal"){
+                    LabelRect.fillStyle = "#FF0000";
+                    //x, y, width, height
+                    LabelRect.fillRect(55, y, 20, 20);
+                    y += 37;
+				}else if(LabelList[i]=="PET_Bottle"){
+                    LabelRect.fillStyle = "#800000";	
+                    LabelRect.fillRect(91, y, 20, 20);
+                    y += 37;
+				}else if(LabelList[i]=="Styrofoam_Piece"){
+                    LabelRect.fillStyle = "#FF4500";
+                    LabelRect.fillRect(128, y, 20, 20);
+                    y += 37;
+				}else if(LabelList[i]=="Styrofoam_Box"){
+                    LabelRect.fillStyle = "#FFFF00";
+                    LabelRect.fillRect(117, y, 20, 20);
+                    y += 37;
+				}else if(LabelList[i]=="Styrofoam_Buoy"){
+                    LabelRect.fillStyle = "#ADFF2F";	
+                    LabelRect.fillRect(127, y, 20, 20);
+                    y += 37;
+				}else if(LabelList[i]=="Rope"){
+                    LabelRect.fillStyle = "#006400";	
+                    LabelRect.fillRect(50, y, 20, 20);
+                    y += 37;
+				}else if(LabelList[i]=="Plastic_Buoy"){
+                    LabelRect.fillStyle = "#0000FF";
+                    LabelRect.fillRect(111, y, 20, 20);
+                    y += 37;
+				}else if(LabelList[i]=="Net"){
+                    LabelRect.fillStyle = "#00FFFF";	
+                    LabelRect.fillRect(40, y, 20, 20);
+                    y += 37;
+				}else if(LabelList[i]=="Glass"){
+                    LabelRect.fillStyle = "#7B68EE";	
+                    LabelRect.fillRect(54, y, 20, 20);
+                    y += 37;
+				}else if(LabelList[i]=="Plastic_ETC"){
+                    LabelRect.fillStyle = "#FF1493";
+                    LabelRect.fillRect(99, y, 20, 20);
+                    y += 37;
+				}else if(LabelList[i]=="Plastic_Buoy_China"){
+                    LabelRect.fillStyle = "#C0C0C0";
+                    LabelRect.fillRect(144, y, 20, 20);
+                    y += 37;
+				}
+            }
+        }
+    }
+
+
+    function is_checked(target, targetID) {
+        if (target.checked == true){
+            console.log('target.checked == true');
+            checked.push(Number(targetID));
+            console.log('checked: ', checked);
+            drawlabel();
+        }else {
+            console.log('target.checked == False');
+            var Index = checked.indexOf(Number(targetID));
+            checked.splice(Index, 1);
+            console.log('checked: ', checked);
+
+            const canvas = document.getElementById('canvas');
+            canvas.getContext("2d").clearRect(0, 0, 910, 900);
+            drawlabel();
+        }
+    }
+
+    function drawlabel() {
+        //문자열: locationListString, LabelListString(배열 아님)
+        var locationListString = document.getElementById('LocationList').value; //좌표값 가져오기
+
+        //1차원 배열: aaaa[좌상단x, 좌상단y, 우하단x, 우하단y, ...]
+        var aaaa = locationListString.split(',');
+        
+        //2차원 배열 만들기: https://eunsood.tistory.com/entry/javascript-%EC%97%90%EC%84%9C-2%EC%B0%A8%EC%9B%90-%EB%B0%B0%EC%97%B4%EC%97%90-%EB%8D%B0%EC%9D%B4%ED%84%B0-%EB%84%A3%EC%9D%84-%EB%95%8C-%EC%84%A0%EC%96%B8-%EB%AC%B8%EC%A0%9C
+        const locationList=[];
+        var c = 0;
+        for (var i=0; i<(aaaa.length)/5; i++){
+            locationList[i]=new Array();
+            var d = aaaa[c].split("'");
+            locationList[i][0] = d[1];
+            c+=1;
+            for (var j=1; j<5; j++){
+                if (j==4){
+                    var e = aaaa[c].split(')');
+                    aaaa[c] = e[0];
+                    locationList[i][j]=aaaa[c];
+                    c+=1;
+                } else {
+                    locationList[i][j]=aaaa[c];
+                    c+=1;
+                };
+            };
+        };
+
+        if ({{ImageHeight}} == 600 && {{ImageWidth}} == 900){
+            //사진이 25% 작으니 좌표도 25% 작게(1200*900만)
+            for (var i=0; i<locationList.length; i++){
+                for (var j=1; j<5; j++){
+                    //console.log("locationList["+i+"]["+j+"]:"+locationList[i][j]);
+                    locationList[i][j]=(parseInt(locationList[i][j])/4)*3;
+                };
+                //console.log("locationList:"+locationList);
+            };
+        } else {
+            //해상도 1200*900 아닌 사진들 처리
+            for (var i=0; i<locationList.length; i++){
+                for (var j=1; j<5; j++){
+                    locationList[i][j]=parseInt(locationList[i][j])/4;
+                };
+            };
+        };
+
+        LabelList = []
+        for (var i=0; i<locationList.length; i++){
+            LabelList.push(locationList[i][0]);
+        };
+
+        const canvas = document.getElementById('canvas');
+        const LeftUpper = canvas.getContext("2d");
+        const RightBottom = canvas.getContext("2d");
+        const Rect = canvas.getContext("2d");
+
+        if(canvas.getContext){
+            for (var i=0; i<locationList.length; i++){
+                if (!checked.includes(i)){
+                    continue
+                } else {
+                    let LabelColor = "";
+                if(locationList[i][0]=="Metal"){
+                    LabelColor ="#FF0000";
+                }else if(locationList[i][0]=="PET_Bottle"){
+                    LabelColor ="#800000";
+                }else if(locationList[i][0]=="Styrofoam_Piece"){
+                    LabelColor ="#FF4500";
+                }else if(locationList[i][0]=="Styrofoam_Box"){
+                    LabelColor ="#FFFF00";
+                }else if(locationList[i][0]=="Styrofoam_Buoy"){
+                    LabelColor ="#ADFF2F";
+                }else if(locationList[i][0]=="Rope"){
+                    LabelColor ="#006400";
+                }else if(locationList[i][0]=="Plastic_Buoy"){
+                    LabelColor ="#0000FF";
+                }else if(locationList[i][0]=="Net"){
+                    LabelColor ="#00FFFF";
+                }else if(locationList[i][0]=="Glass"){
+                    LabelColor ="#7B68EE";
+                }else if(locationList[i][0]=="Plastic_ETC"){
+                    LabelColor ="#FF1493";
+                }else if(locationList[i][0]=="Plastic_Buoy_China"){
+                    LabelColor ="#C0C0C0";
+                }
+
+                Rect.strokeStyle = LabelColor;
+                Rect.lineWidth = 2;	
+
+                //얘 뭐지
+                LeftUpper.beginPath()
+                
+                LeftUpper.arc(locationList[i][1], locationList[i][2], 4, 0, Math.PI*3);
+                RightBottom.arc(locationList[i][3], locationList[i][4], 4, 0, Math.PI*3);
+
+                Rect.strokeRect(locationList[i][1], locationList[i][2], (locationList[i][3])-(locationList[i][1]), (locationList[i][4])-(locationList[i][2]));
+
+                LeftUpper.fillStyle = LabelColor;
+                RightBottom.fillStyle = LabelColor;
+
+                LeftUpper.fill();
+                RightBottom.fill();
+
+                }   
+            }
+        }
+    }
+</script>
+</head>
+
+<body>
+    <!--Color-->
+	<div style="position: fixed; top: 70px; left: 1000px; z-index: 2;">
+		<canvas id="labelcanvas" width="900px" height="900px"></canvas>
+	</div>
+    <div style="position: fixed; left: 980px; top:70px; z-index: 1;">
+    {% for i in range(DetailLabelList | length) %}
+        <p><label><input type="checkbox" id="{{i}}" name="label" value="{{DetailLabelList[i]}}" onclick="is_checked(this, this.id);" checked /> {{DetailLabelList[i]}}</label></p>
+    {% endfor %}
+    </div>
+	<!--파일명, 날짜 출력-->
+	<h2>파일명: {{ImagePath}},	날짜: {{date}}</h2>
+	<!--좌표 찍기-->
+	<div style="position: absolute; z-index: 4;" >
+		<canvas id="canvas" width="910px" height="900px"></canvas>
+	</div>
+	<!--사진 출력-->
+	<div style="position: absolute; z-index: 3;" >
+        {% if SliceImagePath <= 1118 %}
+		<img src="{{url_for('static', filename = 'FD_1_1118/'+ImagePath)}}" alt="이미지" style="height:{{ImageHeight}}px; width:{{ImageWidth}}px;"/>
+        {% elif SliceImagePath <= 2247 and SliceImagePath >= 1119  %}
+        <img src="{{url_for('static', filename = 'FD_1119_2247/'+ImagePath)}}" alt="이미지" style="height:{{ImageHeight}}px; width:{{ImageWidth}}px;"/>
+        {% elif SliceImagePath <= 3537 and SliceImagePath >= 2248  %}
+        <img src="{{url_for('static', filename = 'FD_2248_3537/'+ImagePath)}}" alt="이미지" style="height:{{ImageHeight}}px; width:{{ImageWidth}}px;"/>
+        {% elif SliceImagePath <= 4816 and SliceImagePath >= 3538  %}
+        <img src="{{url_for('static', filename = 'FD_3538_4816/'+ImagePath)}}" alt="이미지" style="height:{{ImageHeight}}px; width:{{ImageWidth}}px;"/>
+        {% elif SliceImagePath <= 6118 and SliceImagePath >= 4817  %}
+        <img src="{{url_for('static', filename = 'FD_4817_6118/'+ImagePath)}}" alt="이미지" style="height:{{ImageHeight}}px; width:{{ImageWidth}}px;"/>
+        {% elif SliceImagePath <= 7408 and SliceImagePath >= 6119  %}
+        <img src="{{url_for('static', filename = 'FD_6119_7408/'+ImagePath)}}" alt="이미지" style="height:{{ImageHeight}}px; width:{{ImageWidth}}px;"/>
+        {% elif SliceImagePath <= 8707 and SliceImagePath >= 7409  %}
+        <img src="{{url_for('static', filename = 'FD_7409_8707/'+ImagePath)}}" alt="이미지" style="height:{{ImageHeight}}px; width:{{ImageWidth}}px;"/>
+        {% elif SliceImagePath <= 10022 and SliceImagePath >= 8708  %}
+        <img src="{{url_for('static', filename = 'FD_8708_10022/'+ImagePath)}}" alt="이미지" style="height:{{ImageHeight}}px; width:{{ImageWidth}}px;"/>
+        {% elif SliceImagePath <= 11129 and SliceImagePath >= 10023  %}
+        <img src="{{url_for('static', filename = 'FD_10023_11129/'+ImagePath)}}" alt="이미지" style="height:{{ImageHeight}}px; width:{{ImageWidth}}px;"/>
+        {% elif SliceImagePath <= 12252 and SliceImagePath >= 11130  %}
+        <img src="{{url_for('static', filename = 'FD_11130_12252/'+ImagePath)}}" alt="이미지" style="height:{{ImageHeight}}px; width:{{ImageWidth}}px;"/>
+
+        {% elif SliceImagePath <= 13556 and SliceImagePath >= 12253  %}
+        <img src="{{url_for('static', filename = 'FD_12253_13556/'+ImagePath)}}" alt="이미지" style="height:{{ImageHeight}}px; width:{{ImageWidth}}px;"/>
+        {% elif SliceImagePath <= 14844 and SliceImagePath >= 13557  %}
+        <img src="{{url_for('static', filename = 'FD_13557_14844/'+ImagePath)}}" alt="이미지" style="height:{{ImageHeight}}px; width:{{ImageWidth}}px;"/>
+        {% elif SliceImagePath <= 16139 and SliceImagePath >= 14845  %}
+        <img src="{{url_for('static', filename = 'FD_14845_16139/'+ImagePath)}}" alt="이미지" style="height:{{ImageHeight}}px; width:{{ImageWidth}}px;"/>
+        {% elif SliceImagePath <= 17450 and SliceImagePath >= 16140  %}
+        <img src="{{url_for('static', filename = 'FD_16140_17450/'+ImagePath)}}" alt="이미지" style="height:{{ImageHeight}}px; width:{{ImageWidth}}px;"/>
+        {% elif SliceImagePath <= 18740 and SliceImagePath >= 17451  %}
+        <img src="{{url_for('static', filename = 'FD_17451_18740/'+ImagePath)}}" alt="이미지" style="height:{{ImageHeight}}px; width:{{ImageWidth}}px;"/>
+        {% elif SliceImagePath <= 20039 and SliceImagePath >= 18741  %}
+        <img src="{{url_for('static', filename = 'FD_18741_20039/'+ImagePath)}}" alt="이미지" style="height:{{ImageHeight}}px; width:{{ImageWidth}}px;"/>
+        {% elif SliceImagePath <= 21128 and SliceImagePath >= 20040  %}
+        <img src="{{url_for('static', filename = 'FD_20040_21128/'+ImagePath)}}" alt="이미지" style="height:{{ImageHeight}}px; width:{{ImageWidth}}px;"/>
+        {% elif SliceImagePath <= 22260 and SliceImagePath >= 21129  %}
+        <img src="{{url_for('static', filename = 'FD_21129_22260/'+ImagePath)}}" alt="이미지" style="height:{{ImageHeight}}px; width:{{ImageWidth}}px;"/>
+        {% elif SliceImagePath <= 23567 and SliceImagePath >= 22262  %}
+        <img src="{{url_for('static', filename = 'FD_22262_23567/'+ImagePath)}}" alt="이미지" style="height:{{ImageHeight}}px; width:{{ImageWidth}}px;"/>
+        {% elif SliceImagePath <= 24875 and SliceImagePath >= 23569  %}
+        <img src="{{url_for('static', filename = 'FD_23569_24875/'+ImagePath)}}" alt="이미지" style="height:{{ImageHeight}}px; width:{{ImageWidth}}px;"/>
+
+        {% elif SliceImagePath <= 26165 and SliceImagePath >= 24876  %}
+        <img src="{{url_for('static', filename = 'FD_24876_26165/'+ImagePath)}}" alt="이미지" style="height:{{ImageHeight}}px; width:{{ImageWidth}}px;"/>
+        {% elif SliceImagePath <= 27484 and SliceImagePath >= 26167  %}
+        <img src="{{url_for('static', filename = 'FD_26167_27484/'+ImagePath)}}" alt="이미지" style="height:{{ImageHeight}}px; width:{{ImageWidth}}px;"/>
+        {% elif SliceImagePath <= 28776 and SliceImagePath >= 27485  %}
+        <img src="{{url_for('static', filename = 'FD_27485_28776/'+ImagePath)}}" alt="이미지" style="height:{{ImageHeight}}px; width:{{ImageWidth}}px;"/>
+        {% elif SliceImagePath <= 30056 and SliceImagePath >= 28778  %}
+        <img src="{{url_for('static', filename = 'FD_28778_30056/'+ImagePath)}}" alt="이미지" style="height:{{ImageHeight}}px; width:{{ImageWidth}}px;"/>
+        {% elif SliceImagePath <= 31164 and SliceImagePath >= 30058  %}
+        <img src="{{url_for('static', filename = 'FD_30058_31164/'+ImagePath)}}" alt="이미지" style="height:{{ImageHeight}}px; width:{{ImageWidth}}px;"/>
+        {% elif SliceImagePath <= 32281 and SliceImagePath >= 31165  %}
+        <img src="{{url_for('static', filename = 'FD_31165_32281/'+ImagePath)}}" alt="이미지" style="height:{{ImageHeight}}px; width:{{ImageWidth}}px;"/>
+        {% elif SliceImagePath <= 33549 and SliceImagePath >= 32282  %}
+        <img src="{{url_for('static', filename = 'FD_32282_33549/'+ImagePath)}}" alt="이미지" style="height:{{ImageHeight}}px; width:{{ImageWidth}}px;"/>
+        {% elif SliceImagePath <= 34863 and SliceImagePath >= 33550  %}
+        <img src="{{url_for('static', filename = 'FD_33550_34863/'+ImagePath)}}" alt="이미지" style="height:{{ImageHeight}}px; width:{{ImageWidth}}px;"/>
+        {% elif SliceImagePath <= 36144 and SliceImagePath >= 34864  %}
+        <img src="{{url_for('static', filename = 'FD_34864_36144/'+ImagePath)}}" alt="이미지" style="height:{{ImageHeight}}px; width:{{ImageWidth}}px;"/>
+        {% elif SliceImagePath <= 37462 and SliceImagePath >= 36145  %}
+        <img src="{{url_for('static', filename = 'FD_36145_37462/'+ImagePath)}}" alt="이미지" style="height:{{ImageHeight}}px; width:{{ImageWidth}}px;"/>
+
+        {% elif SliceImagePath <= 38748 and SliceImagePath >= 37464  %}
+        <img src="{{url_for('static', filename = 'FD_37464_38748/'+ImagePath)}}" alt="이미지" style="height:{{ImageHeight}}px; width:{{ImageWidth}}px;"/>
+        {% elif SliceImagePath <= 40038 and SliceImagePath >= 38749  %}
+        <img src="{{url_for('static', filename = 'FD_38749_40038/'+ImagePath)}}" alt="이미지" style="height:{{ImageHeight}}px; width:{{ImageWidth}}px;"/>
+        {% elif SliceImagePath <= 41335 and SliceImagePath >= 40040  %}
+        <img src="{{url_for('static', filename = 'FD_40040_41335/'+ImagePath)}}" alt="이미지" style="height:{{ImageHeight}}px; width:{{ImageWidth}}px;"/>
+        {% elif SliceImagePath <= 42601 and SliceImagePath >= 41337  %}
+        <img src="{{url_for('static', filename = 'FD_41337_42601/'+ImagePath)}}" alt="이미지" style="height:{{ImageHeight}}px; width:{{ImageWidth}}px;"/>
+        {% elif SliceImagePath <= 43887 and SliceImagePath >= 42603  %}
+        <img src="{{url_for('static', filename = 'FD_42603_43887/'+ImagePath)}}" alt="이미지" style="height:{{ImageHeight}}px; width:{{ImageWidth}}px;"/>
+        {% elif SliceImagePath <= 44999 and SliceImagePath >= 43888  %}
+        <img src="{{url_for('static', filename = 'FD_43888_44999/'+ImagePath)}}" alt="이미지" style="height:{{ImageHeight}}px; width:{{ImageWidth}}px;"/>
+        {% elif SliceImagePath <= 46140 and SliceImagePath >= 45001  %}
+        <img src="{{url_for('static', filename = 'FD_45001_46140/'+ImagePath)}}" alt="이미지" style="height:{{ImageHeight}}px; width:{{ImageWidth}}px;"/>
+        {% elif SliceImagePath <= 101028 and SliceImagePath >= 46141  %}
+        <img src="{{url_for('static', filename = 'FD_46141_46355_100000_101028/'+ImagePath)}}" alt="이미지" style="height:{{ImageHeight}}px; width:{{ImageWidth}}px;"/>
+        {% elif SliceImagePath <= 101765 and SliceImagePath >= 101030  %}
+        <img src="{{url_for('static', filename = 'FD_101030_101765/'+ImagePath)}}" alt="이미지" style="height:{{ImageHeight}}px; width:{{ImageWidth}}px;"/>
+        {% endif %}
+	</div>
+	<input name = "LocationList" id = "LocationList" value = "{{LocationList}}" type="hidden"/>
+</body>
+</html>

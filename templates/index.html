@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>RESTful API</title>
+<script src="http://code.jquery.com/jquery-latest.js"></script>
+<script>
+	window.onload = function(){
+		const myForm = document.getElementById("combobox");
+        myForm.submit();
+
+	}
+	//특정 영역만 새로고침
+	function reloadDivArea() {
+		$('#TableTest').load(location.href+' #TableTest');
+	}
+</script>
+<script>
+	function getReserveInfo(target, id) {
+		var tbody = target.parentNode;
+		var trs = tbody.getElementsByTagName('tr');
+	 
+		var backColor = "#ffffff";
+		var textColor = "black";
+		var orgBColor = "#008B8B";
+		var orgTColor = "#ffffff";
+	 
+		var no = "";
+		var no1 = "";
+		var no2 = "";
+
+		for ( var i = 0; i < trs.length; i++ ) {
+			if ( trs[i] != target ) {
+				trs[i].style.backgroundColor = backColor;
+				trs[i].style.color = textColor;
+			} else {
+				trs[i].style.backgroundColor = orgBColor;
+				trs[i].style.color = orgTColor;
+			}
+		}
+	}
+</script>
+</head>
+<body>
+	<form id="combobox" action="http://localhost/result" target="iframe1" method = "post"  style="position: fixed; top: 80px; left: 30px; z-index: 2;">
+		<h2>DateList</h2>
+		<select name='date'>
+			<option value="all">all</option>
+			{% for item in DateList %}
+			<option value="{{item}}">{{item}}</option>
+			{% endfor %}
+		</select>
+		<input type="submit" value="Search">
+	</form>
+
+	<iframe id="iframe1" name="iframe1" width="1800" height="800" scrolling="no" frameborder=0 style="position: fixed; top: 120px; z-index: 1;"></iframe>
+</body>
+</html>
